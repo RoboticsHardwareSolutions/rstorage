@@ -109,13 +109,13 @@ static bool flash_erase(rstorage *instance) {
 }
 
 
-bool rstorage_write(rstorage *instance, void *data, uint32_t size) {
+bool rstorage_write(rstorage *instance, void *data, uint32_t bytes) {
 
     if (instance == NULL ||
         data == NULL ||
         instance->state != rstorage_idle ||
         instance->size == 0 ||
-        size > instance->size * 1024 ||
+        bytes > instance->size * 1024 ||
         instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
         instance->size > MAX_SIZE_STORAGE_KBYTES)
         return false;
@@ -131,9 +131,9 @@ bool rstorage_write(rstorage *instance, void *data, uint32_t size) {
     }
 
     uint32_t address = instance->start_addr;
-    uint32_t portions_of_data = size % DATA_PORTION_SIZE == 0 ?
-                                size / DATA_PORTION_SIZE :
-                                size / DATA_PORTION_SIZE + 1;
+    uint32_t portions_of_data = bytes % DATA_PORTION_SIZE == 0 ?
+                                bytes / DATA_PORTION_SIZE :
+                                bytes / DATA_PORTION_SIZE + 1;
 
 #if defined (STM32G474xx)
 
@@ -166,7 +166,7 @@ bool rstorage_write(rstorage *instance, void *data, uint32_t size) {
     if (HAL_FLASH_Lock() != HAL_OK)
         return false;
 
-    instance->checksum = checksum((uint8_t *) data, size);
+    instance->checksum = checksum((uint8_t *) data, bytes);
     instance->data_recorded = true;
     instance->state = rstorage_idle;
     return true;
@@ -174,14 +174,14 @@ bool rstorage_write(rstorage *instance, void *data, uint32_t size) {
 }
 
 
-bool rstorage_read(rstorage *instance, void *data, uint32_t size) {
+bool rstorage_read(rstorage *instance, void *data, uint32_t bytes) {
 
     if (instance == NULL ||
         !instance->data_recorded ||
         data == NULL ||
         instance->state != rstorage_idle ||
         instance->size == 0 ||
-        size > instance->size * 1024 ||
+        bytes > instance->size * 1024 ||
         instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
         instance->size > MAX_SIZE_STORAGE_KBYTES)
         return false;
@@ -190,18 +190,18 @@ bool rstorage_read(rstorage *instance, void *data, uint32_t size) {
 
     uint32_t address = instance->start_addr;
     uint32_t *data_in_portions_type = (uint32_t *) data;
-    uint32_t portions_of_data = size % sizeof(*data_in_portions_type) == 0 ?
-                                size / sizeof(*data_in_portions_type) :
-                                size / sizeof(*data_in_portions_type) + 1;
+    uint32_t portions_of_data = bytes % sizeof(*data_in_portions_type) == 0 ?
+                                bytes / sizeof(*data_in_portions_type) :
+                                bytes / sizeof(*data_in_portions_type) + 1;
 
     while (address < instance->start_addr + portions_of_data * sizeof(*data_in_portions_type)) {
-        //TODO here place for segmentation if not check size last portion data;
+        //TODO here place for segmentation if not check bytes last portion data;
         uint32_t index = (address - instance->start_addr) / sizeof(*data_in_portions_type);
         data_in_portions_type[index] = *(__IO uint32_t *) address;
         address += sizeof(*data_in_portions_type);
     }
 
-    uint8_t read_data_chks = checksum((uint8_t *) data, size);
+    uint8_t read_data_chks = checksum((uint8_t *) data, bytes);
 
     if (read_data_chks != instance->checksum) {
         instance->state = rstorage_error;

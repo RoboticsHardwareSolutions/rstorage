@@ -33,9 +33,9 @@ typedef struct {
 
 bool rstorage_init(rstorage *instance, uint32_t start_address, uint16_t kbytes);
 
-bool rstorage_write(rstorage *instance, void *data, uint32_t size);
+bool rstorage_write(rstorage *instance, void *data, uint32_t bytes);
 
-bool rstorage_read(rstorage *instance, void *data, uint32_t size);
+bool rstorage_read(rstorage *instance, void *data, uint32_t bytes);
 
 
 #ifdef __cplusplus
