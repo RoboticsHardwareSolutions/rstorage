@@ -1,6 +1,40 @@
-#include "rstorage.h"
+#if defined(STM32G474xx) || defined(STM32F103xB)
+#include "storage_mcu.h"
+#include "main.h"
+
+static storage_element* first_storage = NULL;
+
+static bool flash_erase(rstorage* instance);
 
 
+#if defined(STM32G474xx)
+
+#    define DATA_PORTION_SIZE 8
+
+static uint32_t get_page(uint32_t addr)
+{
+    uint32_t page = 0;
+
+    if (addr < (FLASH_BASE + FLASH_BANK_SIZE))
+        page = (addr - FLASH_BASE) / FLASH_PAGE_SIZE;
+    else
+        page = (addr - (FLASH_BASE + FLASH_BANK_SIZE)) / FLASH_PAGE_SIZE;
+    return page;
+}
+
+static uint32_t get_bank(uint32_t addr)
+{
+    if (addr < (FLASH_BASE + FLASH_BANK_SIZE))
+        return FLASH_BANK_1;
+    else
+        return FLASH_BANK_2;
+}
+
+#elif defined(STM32F103xB)
+
+#    define DATA_PORTION_SIZE 4
+
+#endif
 
 bool rstorage_init(rstorage* instance, rstorage_type type, int size_kbytes)
 {
@@ -32,7 +66,45 @@ bool rstorage_init(rstorage* instance, rstorage_type type, int size_kbytes)
     return true;
 }
 
+static bool flash_erase(rstorage* instance)
+{
+    instance->state         = rstorage_erasing;
+    instance->data_recorded = false;
 
+#if defined(STM32G474xx)
+
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
+    uint32_t               page_error = 0;
+    FLASH_EraseInitTypeDef erase_struct;
+    erase_struct.TypeErase = FLASH_TYPEERASE_PAGES;
+    erase_struct.Banks     = get_bank(instance->start_addr);
+    erase_struct.Page      = get_page(instance->start_addr);
+    erase_struct.NbPages   = instance->size * FLASH_PAGE_SIZE / 1024;
+
+    if (HAL_FLASHEx_Erase(&erase_struct, &page_error) != HAL_OK)
+    {
+        instance->state = rstorage_error;
+        return false;
+    }
+
+#elif defined(STM32F103xB)
+
+    uint32_t               page_error = 0;
+    FLASH_EraseInitTypeDef erase_struct;
+    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    EraseInitStruct.PageAddress = storage_addr_start;
+    EraseInitStruct.NbPages     = storage_size;
+
+    if (HAL_FLASHEx_Erase(&erase_struct, &page_error) != HAL_OK)
+    {
+        flash_state = error;
+        return false;
+    }
+#endif
+
+    instance->state = rstorage_idle;
+    return true;
+}
 
 bool rstorage_write(rstorage* instance, void* data, uint32_t bytes)
 {
@@ -129,3 +201,5 @@ bool rstorage_read(rstorage* instance, void* data, uint32_t bytes)
     instance->state = rstorage_idle;
     return true;
 }
+
+#endif

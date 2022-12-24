@@ -8,35 +8,31 @@ extern "C" {
 #include "stdbool.h"
 #include "stdio.h"
 #include "stdint.h"
+#include "rstorage_def.h"
+
+#define MAX_SIZE_STORAGE_KBYTES 256
 
 
-#define MAX_SIZE_STORAGE_KBYTES    256
+typedef struct storage_element rstorage;
 
-typedef enum {
-    rstorage_idle,
-    rstorage_writing,
-    rstorage_reading,
-    rstorage_erasing,
-    rstorage_error,
-} rstorage_state;
+/** NOTES USING ONLY FOR MCU
+ * @param instance -   instance of storage
+ * @param start_address - address of flash memory MCU where save data
+ * @return true if successfully configured
+ */
+bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address);
 
+/**
+ * @param instance  - instance of storage
+ * @param type - type of storage
+ * @param size_kbytes - size of storage in kbytes
+ * @return - true if successfully inited
+ */
+bool rstorage_init(rstorage* instance, int size_kbytes);
 
-typedef struct {
-    rstorage_state state;
-    uint32_t start_addr;
-    uint32_t size;
-    bool data_recorded;
-    uint8_t checksum;
-    struct rstorage *next;
-} rstorage;
+bool rstorage_write(rstorage* instance, void* data, uint32_t bytes);
 
-
-bool rstorage_init(rstorage *instance, uint32_t start_address, uint16_t kbytes);
-
-bool rstorage_write(rstorage *instance, void *data, uint32_t bytes);
-
-bool rstorage_read(rstorage *instance, void *data, uint32_t bytes);
-
+bool rstorage_read(rstorage* instance, void* data, uint32_t bytes);
 
 #ifdef __cplusplus
 }
