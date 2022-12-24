@@ -11,7 +11,7 @@ struct storage_element
     uint32_t         size;
     bool             data_recorded;
     uint8_t          checksum;
-    struct rstorage* next;
+    struct storage_element* next;
 };
 
 #endif  // DMCHARGER_UTILITY_STORAGE_FD_H

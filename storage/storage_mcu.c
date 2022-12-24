@@ -2,9 +2,12 @@
 #include "storage_mcu.h"
 #include "main.h"
 
-static storage_element* first_storage = NULL;
 
-static bool flash_erase(rstorage* instance);
+#define ADDR_START_MCU_FLASH_MEMORY  0x08000000
+
+static rstorage * first_storage = NULL;
+
+static bool flash_erase(rstorage * instance);
 
 
 #if defined(STM32G474xx)
@@ -36,21 +39,27 @@ static uint32_t get_bank(uint32_t addr)
 
 #endif
 
-bool rstorage_init(rstorage* instance, rstorage_type type, int size_kbytes)
+
+bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address)
 {
-    if (size_kbytes == 0 || instance == NULL || type < ADDR_START_MCU_FLASH_MEMORY ||
-        size_kbytes > MAX_SIZE_STORAGE_KBYTES)
+
+    if(instance == NULL || start_address < ADDR_START_MCU_FLASH_MEMORY )
         return false;
 
-    instance->start_addr = type;
+    instance->start_addr = start_address;
+    return true;
+}
+
+bool storage_mcu_init(rstorage * instance, int size_kbytes)
+{
+
 #if (FLASH_PAGE_SIZE / 1024 == 1)
     instance->storage_size = kbytes;
 #elif (FLASH_PAGE_SIZE / 1024 == 2)
-    instance->size = kbytes % 2 == 0 ? kbytes : kbytes + 1;
-#elif
+    instance->size = size_kbytes % 2 == 0 ? size_kbytes : size_kbytes + 1;
+#else
     return false;
 #endif
-
     // TODO check strart+size =  the same bank or make double erase in different bank;
     //  TODO check the same addr in other storage;
 
@@ -106,9 +115,9 @@ static bool flash_erase(rstorage* instance)
     return true;
 }
 
-bool rstorage_write(rstorage* instance, void* data, uint32_t bytes)
+bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
 {
-    if (instance == NULL || data == NULL || instance->state != rstorage_idle || instance->size == 0 ||
+    if (instance->state != rstorage_idle || instance->size == 0 ||
         bytes > instance->size * 1024 || instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
         instance->size > MAX_SIZE_STORAGE_KBYTES)
         return false;
@@ -167,9 +176,9 @@ bool rstorage_write(rstorage* instance, void* data, uint32_t bytes)
     return true;
 }
 
-bool rstorage_read(rstorage* instance, void* data, uint32_t bytes)
+bool storage_mcu_read(rstorage* instance, void* data, uint32_t bytes)
 {
-    if (instance == NULL || !instance->data_recorded || data == NULL || instance->state != rstorage_idle ||
+    if (!instance->data_recorded || instance->state != rstorage_idle ||
         instance->size == 0 || bytes > instance->size * 1024 || instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
         instance->size > MAX_SIZE_STORAGE_KBYTES)
         return false;
@@ -202,4 +211,4 @@ bool rstorage_read(rstorage* instance, void* data, uint32_t bytes)
     return true;
 }
 
-#endif
+#endif // defined(STM32G474xx) || defined(STM32F103xB)

@@ -3,6 +3,9 @@
 
 #include "stdint.h"
 
+
+#define MAX_SIZE_STORAGE_KBYTES 256
+
 typedef enum
 {
     rstorage_idle,

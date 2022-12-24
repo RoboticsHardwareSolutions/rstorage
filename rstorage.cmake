@@ -1,13 +1,5 @@
-if (MSVC OR MSYS OR MINGW)
-    add_definitions(-DRSTORAGE_FOR_WINDOWS)
-endif ()
-
-if (APPLE)
-    add_definitions(-DRSTORAGE_FOR_APPLE)
-endif ()
-
-if (UNIX AND NOT APPLE)
-    add_definitions(-DRSTORAGE_FOR_UNIX)
+if ((MSVC OR MSYS OR MINGW) OR (UNIX AND NOT APPLE) OR (APPLE))
+    add_definitions(-DRSTORAGE_USING_FD)
 endif ()
 
 set(RSTORAGE_DIRECTORIES  ${CMAKE_CURRENT_LIST_DIR}/ )
