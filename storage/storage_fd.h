@@ -1,17 +1,27 @@
-#ifndef __STORAGE_FD_H_
-#define __STORAGE_FD_H_
+#pragma once
 
-#include "rstorage_def.h"
-#include "stdint.h"
-#include "stdbool.h"
+#if defined(RSTORAGE_USING_FD)
+
+#    include "rstorage_def.h"
+#    include "stdint.h"
+#    include "stdbool.h"
 
 struct storage_element
 {
-    rstorage_state   state;
-    uint32_t         size;
-    bool             data_recorded;
-    uint8_t          checksum;
+    rstorage_state          state;
+    char                    filename[MAX_FILE_NAME_LENGHT];
+    int                     storage_index;
+    int                     size;
+    uint8_t                 checksum;
     struct storage_element* next;
 };
 
-#endif  // DMCHARGER_UTILITY_STORAGE_FD_H
+typedef struct storage_element rstorage;
+
+bool storage_fd_init(rstorage* instance, int size_kbytes);
+
+bool storage_fd_write(rstorage* instance, void* data, uint32_t bytes);
+
+bool storage_fd_read(rstorage* instance, void* data, uint32_t bytes);
+
+#endif  // defined(RSTORAGE_USING_FD)

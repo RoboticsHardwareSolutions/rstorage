@@ -1,18 +1,16 @@
 #if defined(STM32G474xx) || defined(STM32F103xB)
-#include "storage_mcu.h"
-#include "main.h"
+#    include "storage_mcu.h"
+#    include "main.h"
 
+#    define ADDR_START_MCU_FLASH_MEMORY 0x08000000
 
-#define ADDR_START_MCU_FLASH_MEMORY  0x08000000
+static rstorage* first_storage = NULL;
 
-static rstorage * first_storage = NULL;
+static bool flash_erase(rstorage* instance);
 
-static bool flash_erase(rstorage * instance);
+#    if defined(STM32G474xx)
 
-
-#if defined(STM32G474xx)
-
-#    define DATA_PORTION_SIZE 8
+#        define DATA_PORTION_SIZE 8
 
 static uint32_t get_page(uint32_t addr)
 {
@@ -33,33 +31,30 @@ static uint32_t get_bank(uint32_t addr)
         return FLASH_BANK_2;
 }
 
-#elif defined(STM32F103xB)
+#    elif defined(STM32F103xB)
 
-#    define DATA_PORTION_SIZE 4
+#        define DATA_PORTION_SIZE 4
 
-#endif
-
+#    endif
 
 bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address)
 {
-
-    if(instance == NULL || start_address < ADDR_START_MCU_FLASH_MEMORY )
+    if (instance == NULL || start_address < ADDR_START_MCU_FLASH_MEMORY)
         return false;
 
     instance->start_addr = start_address;
     return true;
 }
 
-bool storage_mcu_init(rstorage * instance, int size_kbytes)
+bool storage_mcu_init(rstorage* instance, int size_kbytes)
 {
-
-#if (FLASH_PAGE_SIZE / 1024 == 1)
+#    if (FLASH_PAGE_SIZE / 1024 == 1)
     instance->storage_size = kbytes;
-#elif (FLASH_PAGE_SIZE / 1024 == 2)
+#    elif (FLASH_PAGE_SIZE / 1024 == 2)
     instance->size = size_kbytes % 2 == 0 ? size_kbytes : size_kbytes + 1;
-#else
+#    else
     return false;
-#endif
+#    endif
     // TODO check strart+size =  the same bank or make double erase in different bank;
     //  TODO check the same addr in other storage;
 
@@ -80,7 +75,7 @@ static bool flash_erase(rstorage* instance)
     instance->state         = rstorage_erasing;
     instance->data_recorded = false;
 
-#if defined(STM32G474xx)
+#    if defined(STM32G474xx)
 
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPTVERR);
     uint32_t               page_error = 0;
@@ -96,7 +91,7 @@ static bool flash_erase(rstorage* instance)
         return false;
     }
 
-#elif defined(STM32F103xB)
+#    elif defined(STM32F103xB)
 
     uint32_t               page_error = 0;
     FLASH_EraseInitTypeDef erase_struct;
@@ -109,7 +104,7 @@ static bool flash_erase(rstorage* instance)
         flash_state = error;
         return false;
     }
-#endif
+#    endif
 
     instance->state = rstorage_idle;
     return true;
@@ -117,9 +112,8 @@ static bool flash_erase(rstorage* instance)
 
 bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
 {
-    if (instance->state != rstorage_idle || instance->size == 0 ||
-        bytes > instance->size * 1024 || instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
-        instance->size > MAX_SIZE_STORAGE_KBYTES)
+    if (instance->state != rstorage_idle || instance->size == 0 || bytes > instance->size * 1024 ||
+        instance->start_addr < ADDR_START_MCU_FLASH_MEMORY || instance->size > MAX_SIZE_STORAGE_KBYTES)
         return false;
 
     instance->state = rstorage_writing;
@@ -137,7 +131,7 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
     uint32_t portions_of_data =
         bytes % DATA_PORTION_SIZE == 0 ? bytes / DATA_PORTION_SIZE : bytes / DATA_PORTION_SIZE + 1;
 
-#if defined(STM32G474xx)
+#    if defined(STM32G474xx)
 
     uint64_t* data_in_portions_type = (uint64_t*) data;
     while (address < instance->start_addr + portions_of_data * DATA_PORTION_SIZE)
@@ -152,7 +146,7 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
         address += DATA_PORTION_SIZE;
     }
 
-#elif defined(STM32F103xB)
+#    elif defined(STM32F103xB)
 
     uint32_t* data_in_portions_type = (uint32_t*) data;
     while (address < storage_addr_start + portions_of_data * DATA_PORTION_SIZE)
@@ -166,7 +160,7 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
         address += DATA_PORTION_SIZE;
     }
 
-#endif
+#    endif
     if (HAL_FLASH_Lock() != HAL_OK)
         return false;
 
@@ -178,8 +172,8 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
 
 bool storage_mcu_read(rstorage* instance, void* data, uint32_t bytes)
 {
-    if (!instance->data_recorded || instance->state != rstorage_idle ||
-        instance->size == 0 || bytes > instance->size * 1024 || instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
+    if (!instance->data_recorded || instance->state != rstorage_idle || instance->size == 0 ||
+        bytes > instance->size * 1024 || instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
         instance->size > MAX_SIZE_STORAGE_KBYTES)
         return false;
 
@@ -211,4 +205,4 @@ bool storage_mcu_read(rstorage* instance, void* data, uint32_t bytes)
     return true;
 }
 
-#endif // defined(STM32G474xx) || defined(STM32F103xB)
+#endif  // defined(STM32G474xx) || defined(STM32F103xB)

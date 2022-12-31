@@ -14,6 +14,7 @@ typedef struct storage_element rstorage;
 
 #ifndef RSTORAGE_USING_FD
 
+#include ""
 /** NOTES USING ONLY FOR MCU
  * @param instance -   instance of storage
  * @param start_address - address of flash memory MCU where save data
@@ -21,7 +22,7 @@ typedef struct storage_element rstorage;
  */
 bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address);
 
-#endif //RSTORAGE_USING_FD
+#endif  // RSTORAGE_USING_FD
 
 /**
  * @param instance  - instance of storage
@@ -31,7 +32,6 @@ bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address);
  * @return - true if successfully inited
  */
 bool rstorage_init(rstorage* instance, int size_kbytes);
-
 
 /**
  * @param instance
@@ -47,7 +47,6 @@ bool rstorage_write(rstorage* instance, void* data, uint32_t bytes);
  * @param bytes
  * @return
  */
-
 bool rstorage_read(rstorage* instance, void* data, uint32_t bytes);
 
 #ifdef __cplusplus

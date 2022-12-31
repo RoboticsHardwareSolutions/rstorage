@@ -3,8 +3,8 @@
 
 #include "stdint.h"
 
-
 #define MAX_SIZE_STORAGE_KBYTES 256
+#define MAX_FILE_NAME_LENGHT 255
 
 typedef enum
 {
@@ -14,6 +14,7 @@ typedef enum
     rstorage_erasing,
     rstorage_error,
 } rstorage_state;
+
 
 static inline uint8_t checksum(uint8_t* data, uint32_t size)
 {
