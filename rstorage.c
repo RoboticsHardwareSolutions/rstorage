@@ -20,10 +20,26 @@ bool rstorage_write(rstorage* instance, void* data, uint32_t bytes)
 {
     if (instance == NULL || data == NULL)
         return false;
+
+#if defined(RSTORAGE_USING_FD)
+    return storage_fd_write(instance, data, bytes);
+#endif
+
+#if defined(STM32G474xx) || defined(STM32F103xB)
+    return storage_mcu_write(instance, data, bytes);
+#endif
 }
 
 bool rstorage_read(rstorage* instance, void* data, uint32_t bytes)
 {
     if (instance == NULL || data == NULL)
         return false;
+
+#if defined(RSTORAGE_USING_FD)
+    return storage_fd_read(instance, data, bytes);
+#endif
+
+#if defined(STM32G474xx) || defined(STM32F103xB)
+    return storage_mcu_read(instance, data, bytes);
+#endif
 }

@@ -12,31 +12,24 @@ static rstorage* first_storage = NULL;
 
 bool storage_fd_init(rstorage* instance, int size_kbytes)
 {
-    bool first = false;
     int index = 0;
-
-    if (first_storage == NULL)
-        first = true;
 
     rstorage** storage = &first_storage;
 
     while (*storage != NULL)
     {
-        if(first)
-            instance->storage_index = 0;
-
-        index   = (*storage)->storage_index;
+        index++;
         storage = (rstorage**) &((*storage)->next);
     }
 
-    *storage                = instance;
     instance->size          = size_kbytes;
-    instance->storage_index = index++;
+    instance->storage_index = index;
     instance->next          = NULL;
     instance->state         = rstorage_idle;
     instance->checksum      = 0;
     memset(instance->filename, '\0', MAX_FILE_NAME_LENGHT);
     sprintf(instance->filename, "rstorage%d.bin", instance->storage_index);
+    *storage = instance;
     FILE* fp;
 
     fp = fopen(instance->filename, "r+b");
@@ -56,6 +49,9 @@ bool storage_fd_init(rstorage* instance, int size_kbytes)
 
 bool storage_fd_write(rstorage* instance, void* data, uint32_t bytes)
 {
+    if (instance->state != rstorage_idle || instance->size == 0 || bytes > (uint32_t) instance->size * 1024)
+        return false;
+
     return true;
 }
 

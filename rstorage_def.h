@@ -15,12 +15,17 @@ typedef enum
     rstorage_error,
 } rstorage_state;
 
+#if defined(RSTORAGE_USING_FD)
+#    include "storage_fd.h"
+#elif defined(STM32G474xx) || defined(STM32F103xB)
+#    include "storage_mcu.h"
+#endif
 
 static inline uint8_t checksum(uint8_t* data, uint32_t size)
 {
     uint8_t chks = 0;
 
-    for (uint32_t i = 0; i < size - 1; i++)
+    for (uint32_t i = 0; i < size; i++)
         chks += data[i];
 
     return -chks;

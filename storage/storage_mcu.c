@@ -1,4 +1,5 @@
 #if defined(STM32G474xx) || defined(STM32F103xB)
+
 #    include "storage_mcu.h"
 #    include "main.h"
 

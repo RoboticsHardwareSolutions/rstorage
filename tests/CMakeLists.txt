@@ -51,7 +51,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Woverloaded-virtual -Wnon-virtual-dtor 
 
 include_directories(${CMAKE_CURRENT_LIST_DIR}/catch/ ${library_dir1} ${library_dir2})
 add_definitions(-DCATCH_CONFIG_FAST_COMPILE=1 -DCATCH_CONFIG_ENABLE_ALL_STRINGMAKERS=1)
-
+add_definitions(-DRSTORAGE_USING_FD)
 
 set(common_sources
         tests.cpp
@@ -62,7 +62,7 @@ set(common_sources
 function(gen_test name files compile_definitions compile_flags link_flags c_standard)
     add_executable(${name} ${common_sources} ${files})
     target_compile_definitions(${name} PUBLIC ${compile_definitions})
-    target_link_libraries(${name} pthread ${RTIMER_LIBRARIES})
+    target_link_libraries(${name} pthread )
     set_target_properties(
             ${name}
             PROPERTIES

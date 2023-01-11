@@ -3,6 +3,7 @@
 #if defined(RSTORAGE_USING_FD)
 
 #    include "rstorage_def.h"
+#    include "rstorage.h"
 #    include "stdint.h"
 #    include "stdbool.h"
 

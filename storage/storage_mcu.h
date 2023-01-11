@@ -3,6 +3,7 @@
 #if defined(STM32G474xx) || defined(STM32F103xB)
 
 #    include "rstorage_def.h"
+#    include "rstorage.h"
 #    include "stdint.h"
 #    include "stdbool.h"
 
@@ -24,4 +25,4 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes);
 
 bool storage_mcu_read(rstorage* instance, void* data, uint32_t bytes);
 
-#endif  //__STORAGE_MCU_H_
+#endif  // defined(STM32G474xx) || defined(STM32F103xB)
