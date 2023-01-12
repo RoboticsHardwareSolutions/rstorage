@@ -13,8 +13,7 @@ extern "C" {
 typedef struct storage_element rstorage;
 
 #ifndef RSTORAGE_USING_FD
-
-#    include ""
+    
 /** NOTES USING ONLY FOR MCU
  * @param instance -   instance of storage
  * @param start_address - address of flash memory MCU where save data
