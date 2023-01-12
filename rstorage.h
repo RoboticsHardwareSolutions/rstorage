@@ -34,10 +34,10 @@ bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address);
 bool rstorage_init(rstorage* instance, int size_kbytes);
 
 /**
- * @param instance
- * @param data
- * @param bytes
- * @return
+ * @param instance - instance of storage
+ * @param data - data which will write to storage
+ * @param bytes - size of data in BYTES (NOTE current wrote of data clear all previous data )
+ * @return  - true if data  wroted / false in other case
  */
 bool rstorage_write(rstorage* instance, void* data, uint32_t bytes);
 

@@ -1,4 +1,3 @@
-#include "rstorage.h"
 #include "storage_fd.h"
 #include "storage_mcu.h"
 

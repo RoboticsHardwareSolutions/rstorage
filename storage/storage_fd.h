@@ -12,6 +12,7 @@ struct storage_element
     rstorage_state          state;
     char                    filename[MAX_FILE_NAME_LENGHT];
     int                     storage_index;
+    bool                    data_recorded;
     int                     size;
     uint8_t                 checksum;
     struct storage_element* next;
