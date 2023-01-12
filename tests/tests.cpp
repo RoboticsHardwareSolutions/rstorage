@@ -6,6 +6,8 @@
 
 TEST_CASE("Public API ")
 {
+
+/**********************************************************************************************************************/
     SECTION("invalid arg tests for init function")
     {
         rstorage storage1;
@@ -14,7 +16,7 @@ TEST_CASE("Public API ")
         REQUIRE(rstorage_init(&storage1, 0) == false);
         REQUIRE(rstorage_init(&storage2, MAX_SIZE_STORAGE_KBYTES + 1) == false);
     }
-
+/**********************************************************************************************************************/
     SECTION("invalid arg tests for write")
     {
         rstorage storage2;
@@ -35,7 +37,7 @@ TEST_CASE("Public API ")
         REQUIRE(rstorage_write(&storage2, (void*) storage_data, sizeof(storage_data) + 1) == false);
         REQUIRE(rstorage_write(&storage2, (void*) storage_data, sizeof(storage_data) - 1) == true);
     }
-
+/**********************************************************************************************************************/
     SECTION("invalid arg tests for read")
     {
         rstorage storage3, storage4, storage5, storage6;
@@ -73,7 +75,7 @@ TEST_CASE("Public API ")
         REQUIRE(rstorage_read(&storage6, (void*) storage_data, sizeof(storage_data) + 1) == false); // Invalid
 
     }
-
+/**********************************************************************************************************************/
     SECTION("test public API functions")
     {
         rstorage storage7;
@@ -91,13 +93,13 @@ TEST_CASE("Public API ")
         REQUIRE(rstorage_read(&storage7,(void *)readed_data, sizeof(storage_data)) == true);
         REQUIRE(memcmp(storage_data,readed_data,2048) == 0);
     }
-
+/**********************************************************************************************************************/
     SECTION("test checksum error")
     {
         rstorage storage7;
         char byte  = 0x34;
-        uint8_t  storage_data[2048];
-        uint8_t  readed_data[2048];
+        uint8_t  storage_data[3];
+        uint8_t  readed_data[3];
 
         // make random data for storage
         for (size_t i = 0; i < sizeof(storage_data); i++)
@@ -108,13 +110,14 @@ TEST_CASE("Public API ")
         REQUIRE(rstorage_init(&storage7, 2) == true);
         REQUIRE(rstorage_write(&storage7,(void *)storage_data, sizeof(storage_data)) == true);
         FILE* fp;
-        fp = fopen("rstorage0.bin", "r+b");
+        fp = fopen("rstorage6.bin", "r+b");
         REQUIRE(fp != NULL);
         REQUIRE(fwrite(&byte, 1, 1, fp) == 1);
         fclose(fp);
         REQUIRE(rstorage_read(&storage7,(void *)readed_data, sizeof(storage_data)) == false);
+        REQUIRE(memcmp(readed_data,storage_data, sizeof(readed_data)) != 0);
 
     }
 }
 
-/**********************************************************************************************************************/
+
