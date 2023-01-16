@@ -50,7 +50,7 @@ bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address)
 bool storage_mcu_init(rstorage* instance, int size_kbytes)
 {
 #    if (FLASH_PAGE_SIZE / 1024 == 1)
-    instance->storage_size = kbytes;
+    instance->size = size_kbytes;
 #    elif (FLASH_PAGE_SIZE / 1024 == 2)
     instance->size = size_kbytes % 2 == 0 ? size_kbytes : size_kbytes + 1;
 #    else
@@ -96,13 +96,13 @@ static bool flash_erase(rstorage* instance)
 
     uint32_t               page_error = 0;
     FLASH_EraseInitTypeDef erase_struct;
-    EraseInitStruct.TypeErase   = FLASH_TYPEERASE_PAGES;
-    EraseInitStruct.PageAddress = storage_addr_start;
-    EraseInitStruct.NbPages     = storage_size;
+    erase_struct.TypeErase   = FLASH_TYPEERASE_PAGES;
+    erase_struct.PageAddress = instance->start_addr;
+    erase_struct.NbPages     = instance->size;
 
     if (HAL_FLASHEx_Erase(&erase_struct, &page_error) != HAL_OK)
     {
-        flash_state = error;
+        instance->state = rstorage_error;
         return false;
     }
 #    endif
@@ -150,11 +150,11 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
 #    elif defined(STM32F103xB)
 
     uint32_t* data_in_portions_type = (uint32_t*) data;
-    while (address < storage_addr_start + portions_of_data * DATA_PORTION_SIZE)
+    while (address < instance->start_addr + portions_of_data * DATA_PORTION_SIZE)
     {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *data_in_portions_type) != HAL_OK)
         {
-            flash_state = error;
+            instance->state = rstorage_error;
             return false;
         }
         data_in_portions_type++;

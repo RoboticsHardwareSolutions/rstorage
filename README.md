@@ -4,6 +4,16 @@ simple interface for read & write flash memory in stm32
 
 supported mcu : `STM32G474xx` , `STM32F103xB` , .... 
 
+```
+#add to cmake :
+
+include(rstorage/rstorage.cmake)
+
+include_directories( ... ${RSTORAGE_DIRECTORIES})
+
+add_executable( ... ${RSTORAGE_EXECUTABLE_FILES})
+
+```
 
 ```
 typedef struct {
