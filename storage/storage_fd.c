@@ -44,7 +44,7 @@ bool storage_fd_init(rstorage* instance, int size_kbytes)
         return false;
     }
 
-    if(fclose(fp) == EOF)
+    if (fclose(fp) == EOF)
     {
         instance->state = rstorage_error;
         return false;
@@ -75,17 +75,16 @@ bool storage_fd_write(rstorage* instance, void* data, uint32_t bytes)
         return false;
     }
 
-    instance->checksum = checksum(data,bytes);
+    instance->checksum = checksum(data, bytes);
 
-    if(fclose(fp) == EOF)
+    if (fclose(fp) == EOF)
     {
         instance->state = rstorage_error;
         return false;
     }
     instance->data_recorded = true;
-    instance->state = rstorage_idle;
+    instance->state         = rstorage_idle;
     return true;
-
 }
 
 bool storage_fd_read(rstorage* instance, void* data, uint32_t bytes)
@@ -105,21 +104,21 @@ bool storage_fd_read(rstorage* instance, void* data, uint32_t bytes)
         return false;
     }
 
-    if(fread(data,1,bytes,fp) != bytes)
+    if (fread(data, 1, bytes, fp) != bytes)
     {
         fclose(fp);
         instance->state = rstorage_error;
         return false;
     }
 
-    if(checksum(data,bytes) != instance->checksum )
+    if (checksum(data, bytes) != instance->checksum)
     {
         fclose(fp);
         instance->state = rstorage_error;
         return false;
     }
 
-    if(fclose(fp) == EOF)
+    if (fclose(fp) == EOF)
     {
         instance->state = rstorage_error;
         return false;
