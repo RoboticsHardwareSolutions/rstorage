@@ -1,6 +1,6 @@
 # rstorage
 
-simple interface for read & write flash memory in stm32
+simple interface for read & write ROM on linux / mac / stm32
 
 supported mcu : `STM32G474xx` , `STM32F103xB` , .... 
 
