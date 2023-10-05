@@ -12,8 +12,6 @@ struct storage_element
     rstorage_state          state;
     uint32_t                start_addr;
     uint32_t                size;
-    bool                    data_recorded;
-    uint8_t                 checksum;
     struct storage_element* next;
 };
 

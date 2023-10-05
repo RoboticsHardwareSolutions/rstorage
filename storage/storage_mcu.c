@@ -34,7 +34,7 @@ static uint32_t get_bank(uint32_t addr)
 
 #    elif defined(STM32F103xB)
 
-#        define DATA_PORTION_SIZE 4
+#        define DATA_PORTION_SIZE sizeof(uint32_t)
 
 #    endif
 
@@ -59,6 +59,9 @@ bool storage_mcu_init(rstorage* instance, int size_kbytes)
     // TODO check strart+size =  the same bank or make double erase in different bank;
     //  TODO check the same addr in other storage;
 
+    instance->next  = NULL;
+    instance->state = rstorage_idle;
+
     rstorage** storage = &first_storage;
     while (*storage != NULL)
     {
@@ -66,15 +69,12 @@ bool storage_mcu_init(rstorage* instance, int size_kbytes)
     }
     *storage = instance;
 
-    instance->next  = NULL;
-    instance->state = rstorage_idle;
     return true;
 }
 
 static bool flash_erase(rstorage* instance)
 {
-    instance->state         = rstorage_erasing;
-    instance->data_recorded = false;
+    instance->state = rstorage_erasing;
 
 #    if defined(STM32G474xx)
 
@@ -99,6 +99,7 @@ static bool flash_erase(rstorage* instance)
     erase_struct.TypeErase   = FLASH_TYPEERASE_PAGES;
     erase_struct.PageAddress = instance->start_addr;
     erase_struct.NbPages     = instance->size;
+    erase_struct.Banks       = FLASH_BANK_1;
 
     if (HAL_FLASHEx_Erase(&erase_struct, &page_error) != HAL_OK)
     {
@@ -124,6 +125,7 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
 
     if (!flash_erase(instance))
     {
+        HAL_FLASH_Lock();
         instance->state = rstorage_error;
         return false;
     }
@@ -154,6 +156,7 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
     {
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *data_in_portions_type) != HAL_OK)
         {
+            HAL_FLASH_Lock();
             instance->state = rstorage_error;
             return false;
         }
@@ -164,18 +167,15 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
 #    endif
     if (HAL_FLASH_Lock() != HAL_OK)
         return false;
-
-    instance->checksum      = checksum((uint8_t*) data, bytes);
-    instance->data_recorded = true;
-    instance->state         = rstorage_idle;
+    // TODO its fake check summ !!! make save chack summ like a last symbol of page
+    instance->state = rstorage_idle;
     return true;
 }
 
 bool storage_mcu_read(rstorage* instance, void* data, uint32_t bytes)
 {
-    if (!instance->data_recorded || instance->state != rstorage_idle || instance->size == 0 ||
-        bytes > instance->size * 1024 || instance->start_addr < ADDR_START_MCU_FLASH_MEMORY ||
-        instance->size > MAX_SIZE_STORAGE_KBYTES)
+    if (instance->state != rstorage_idle || instance->size == 0 || bytes > instance->size * 1024 ||
+        instance->start_addr < ADDR_START_MCU_FLASH_MEMORY || instance->size > MAX_SIZE_STORAGE_KBYTES)
         return false;
 
     instance->state = rstorage_reading;
@@ -193,15 +193,6 @@ bool storage_mcu_read(rstorage* instance, void* data, uint32_t bytes)
         data_in_portions_type[index] = *(__IO uint32_t*) address;
         address += sizeof(*data_in_portions_type);
     }
-
-    uint8_t read_data_chks = checksum((uint8_t*) data, bytes);
-
-    if (read_data_chks != instance->checksum)
-    {
-        instance->state = rstorage_error;
-        return false;
-    }
-
     instance->state = rstorage_idle;
     return true;
 }

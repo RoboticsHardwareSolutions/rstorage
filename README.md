@@ -21,7 +21,6 @@ typedef struct {
     uint32_t start_addr;
     uint32_t size;
     bool data_recorded;
-    uint8_t checksum;
     struct rstorage *next;
 } rstorage;
 
@@ -36,29 +35,35 @@ bool rstorage_read(rstorage *instance, void *data, uint32_t size);
 example :
 
 ```
-#define ADDR_FLASH_PAGE_124   ((uint32_t)0x0803E000)
-
-    rstorage storage = {0};
-    uint8_t app_data[1024];
-    
-    for (uint32_t i = 0; i < 1024 * 1; i++) {
+    RLOG_INFO("start interface");
+    uint8_t  app_data[256];
+    rstorage storage;
+    rstorage_config_flash_memory(&storage, APP_DATA_ADDR);
+    for (uint32_t i = 0; i < sizeof(app_data); i++)
+    {
         app_data[i] = i % UINT8_MAX;
     }
+    rstorage_init(&storage, APP_DATA_SIZE);
 
-    rstorage_init(&storage, ADDR_FLASH_PAGE_124, 1);
-
-    for (;;) {
-        if(!rstorage_write(&storage, (void *) app_data, 1024 * 1)){
-            led_red_on();
-            while(1){};
+    for (;;)
+    {
+        taskENTER_CRITICAL();
+        if (!rstorage_write(&storage, (void*) app_data, sizeof(app_data)))
+        {
+            button_led_turn_on();
         }
+        taskEXIT_CRITICAL();
         osDelay(1);
-        if(!rstorage_read(&storage, (void *) app_data, 1024 * 1)){
-            led_red_on();
-            while(1){};
+        taskENTER_CRITICAL();
+        if (!rstorage_read(&storage, (void*) app_data, sizeof(app_data)))
+        {
+            button_led_turn_on();
+            while (1)
+            {
+            };
         }
+        taskEXIT_CRITICAL();
         osDelay(1);
     }
-#undef ADDR_FLASH_PAGE_124
 
 ```
