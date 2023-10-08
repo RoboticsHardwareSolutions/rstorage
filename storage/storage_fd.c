@@ -81,7 +81,7 @@ bool storage_write(rstorage* instance, void* data, uint32_t bytes)
 bool storage_read(rstorage* instance, void* data, uint32_t bytes)
 {
     if (instance->state != rstorage_idle || instance->size == 0 ||
-        bytes > (uint32_t) instance->size * 1024)
+        bytes > (uint32_t) instance->size * 1024 || bytes == 0)
         return false;
 
     instance->state = rstorage_reading;
