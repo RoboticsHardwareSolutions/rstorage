@@ -1,5 +1,7 @@
+#include "storage.h"
 
-#ifndef RSTORAGE_STORAGE_API_H
-#define RSTORAGE_STORAGE_API_H
+bool storage_init(struct storage_element* instance, int size_kbytes);
 
-#endif //RSTORAGE_STORAGE_API_H
+bool storage_write(struct storage_element* instance, void* data, uint32_t bytes);
+
+bool storage_read(struct storage_element* instance, void* data, uint32_t bytes);

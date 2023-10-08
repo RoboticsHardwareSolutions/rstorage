@@ -1,5 +1,6 @@
 #include "rstorage.h"
 #include "storage.h"
+#include "storage_api.h"
 
 bool rstorage_init(rstorage* instance, int size_kbytes)
 {
