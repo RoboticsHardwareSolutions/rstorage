@@ -7,19 +7,19 @@ file(GLOB RST_SOURCE2 *.c)
 file(GLOB RST_HEADERS2 *.h)
 
 
-add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2})
-
-add_executable(${PROJECT_NAME}_test tests/tests.c
-        ${RST_SOURCE1} ${RST_HEADERS1}
-        ${RST_SOURCE2} ${RST_HEADERS2}
-        ./tests/runit/src/runit.c)
-
+add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_SOURCE2})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/storage>
         )
+
+
+add_executable(${PROJECT_NAME}_test tests/tests.c
+        ${RST_SOURCE1}
+        ${RST_SOURCE2}
+        ./tests/runit/src/runit.c)
 
 target_include_directories(${PROJECT_NAME}_test PUBLIC tests/runit/src storage .)
 

@@ -5,9 +5,6 @@
 extern "C" {
 #endif
 
-#include "stdbool.h"
-#include "stdio.h"
-#include "stdint.h"
 #include "rstorage_def.h"
 
 typedef struct storage_element rstorage;

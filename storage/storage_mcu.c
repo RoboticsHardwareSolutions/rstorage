@@ -1,6 +1,6 @@
-#if defined(STM32G474xx) || defined(STM32F103xB)
+#if defined(STM32F765xx) || defined(STM32G474xx) || defined(STM32F103xB)
 
-#    include "storage_mcu.h"
+#    include "storage.h"
 #    include "main.h"
 
 #    define ADDR_START_MCU_FLASH_MEMORY 0x08000000
@@ -36,6 +36,10 @@ static uint32_t get_bank(uint32_t addr)
 
 #        define DATA_PORTION_SIZE sizeof(uint32_t)
 
+#    elif defined(STM32F765xx)
+
+#        define DATA_PORTION_SIZE sizeof(uint32_t)
+
 #    endif
 
 bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address)
@@ -47,7 +51,7 @@ bool rstorage_config_flash_memory(rstorage* instance, uint32_t start_address)
     return true;
 }
 
-bool storage_mcu_init(rstorage* instance, int size_kbytes)
+bool storage_init(rstorage* instance, int size_kbytes)
 {
 #    if (FLASH_PAGE_SIZE / 1024 == 1)
     instance->size = size_kbytes;
@@ -112,7 +116,7 @@ static bool flash_erase(rstorage* instance)
     return true;
 }
 
-bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
+bool storage_write(rstorage* instance, void* data, uint32_t bytes)
 {
     if (instance->state != rstorage_idle || instance->size == 0 || bytes > instance->size * 1024 ||
         instance->start_addr < ADDR_START_MCU_FLASH_MEMORY || instance->size > MAX_SIZE_STORAGE_KBYTES)
@@ -172,7 +176,7 @@ bool storage_mcu_write(rstorage* instance, void* data, uint32_t bytes)
     return true;
 }
 
-bool storage_mcu_read(rstorage* instance, void* data, uint32_t bytes)
+bool storage_read(rstorage* instance, void* data, uint32_t bytes)
 {
     if (instance->state != rstorage_idle || instance->size == 0 || bytes > instance->size * 1024 ||
         instance->start_addr < ADDR_START_MCU_FLASH_MEMORY || instance->size > MAX_SIZE_STORAGE_KBYTES)

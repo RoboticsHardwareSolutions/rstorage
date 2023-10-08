@@ -7,7 +7,7 @@
 
 static rstorage* first_storage = NULL;
 
-bool storage_fd_init(rstorage* instance, int size_kbytes)
+bool storage_init(rstorage* instance, int size_kbytes)
 {
     instance->size          = size_kbytes;
     instance->storage_index = 0;
@@ -45,7 +45,7 @@ bool storage_fd_init(rstorage* instance, int size_kbytes)
     return true;
 }
 
-bool storage_fd_write(rstorage* instance, void* data, uint32_t bytes)
+bool storage_write(rstorage* instance, void* data, uint32_t bytes)
 {
     if (instance->state != rstorage_idle || instance->size == 0 || bytes > (uint32_t) instance->size * 1024)
         return false;
@@ -78,7 +78,7 @@ bool storage_fd_write(rstorage* instance, void* data, uint32_t bytes)
     return true;
 }
 
-bool storage_fd_read(rstorage* instance, void* data, uint32_t bytes)
+bool storage_read(rstorage* instance, void* data, uint32_t bytes)
 {
     if (instance->state != rstorage_idle || instance->size == 0 ||
         bytes > (uint32_t) instance->size * 1024)
