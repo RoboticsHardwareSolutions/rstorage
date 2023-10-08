@@ -5,6 +5,9 @@
 #include "stdbool.h"
 #include "stdio.h"
 
+#define MAX_SIZE_STORAGE_KBYTES 256
+#define MAX_FILE_NAME_LENGHT 255
+
 typedef enum
 {
     storage_idle,
@@ -19,16 +22,13 @@ typedef enum
 
 struct storage_element
 {
-    storage_state           state;
+    storage_state_t         state;
     uint32_t                start_addr;
     uint32_t                size;
     struct storage_element* next;
 };
 
 #elif defined(RSTORAGE_USING_FD)
-
-#define MAX_SIZE_STORAGE_KBYTES 256
-#define MAX_FILE_NAME_LENGHT 255
 
 struct storage_element
 {
