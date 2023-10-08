@@ -32,7 +32,7 @@ struct storage_element
 
 struct storage_element
 {
-    storage_state_t           state;
+    storage_state_t         state;
     char                    filename[MAX_FILE_NAME_LENGHT];
     int                     storage_index;
     int                     size;
