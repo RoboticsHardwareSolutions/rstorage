@@ -107,7 +107,7 @@ static bool flash_erase(struct storage_element* instance)
 
     if (HAL_FLASHEx_Erase(&erase_struct, &page_error) != HAL_OK)
     {
-        instance->state = rstorage_error;
+        instance->state = storage_error;
         return false;
     }
 #    endif
@@ -161,7 +161,7 @@ bool storage_write(struct storage_element* instance, void* data, uint32_t bytes)
         if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, *data_in_portions_type) != HAL_OK)
         {
             HAL_FLASH_Lock();
-            instance->state = rstorage_error;
+            instance->state = storage_error;
             return false;
         }
         data_in_portions_type++;
