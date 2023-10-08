@@ -1,6 +1,6 @@
 #if defined(RSTORAGE_USING_FD)
 
-#    include "storage_fd.h"
+#    include "storage.h"
 #    include "stdint.h"
 #    include "string.h"
 #    include <stdio.h>
