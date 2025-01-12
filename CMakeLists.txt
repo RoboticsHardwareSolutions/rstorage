@@ -1,5 +1,9 @@
-cmake_minimum_required(VERSION 3.9)
-project(rstorage C)
+cmake_minimum_required(VERSION 3.24)
+project(rstorage
+        VERSION 0.1.0
+        LANGUAGES C
+        DESCRIPTION
+        "rstorage simple library for make binary storage in memory")
 
 file(GLOB RST_SOURCE1 storage/*.c)
 file(GLOB RST_HEADERS1 storage/*.h)
@@ -8,29 +12,37 @@ file(GLOB RST_HEADERS2 *.h)
 
 
 add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2})
-
-add_executable(${PROJECT_NAME}_test tests/tests.c
-        ${RST_SOURCE1} ${RST_HEADERS1}
-        ${RST_SOURCE2} ${RST_HEADERS2}
-        ./tests/runit/src/runit.c)
-
-
 target_include_directories(${PROJECT_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/storage>
+)
+
+# Test runner executable testing the static library
+if (NOT ${CMAKE_SYSTEM_NAME} MATCHES Generic)
+    add_executable(${PROJECT_NAME}_test test/tests.c)
+
+    if (NOT TARGET runit)
+        include(FetchContent)
+        FetchContent_Declare(
+                runit
+                URL https://github.com/RoboticsHardwareSolutions/runit/archive/refs/heads/main.zip
         )
+        FetchContent_MakeAvailable(runit)
+    endif ()
 
-target_include_directories(${PROJECT_NAME}_test PUBLIC tests/runit/src storage .)
+    target_link_libraries(${PROJECT_NAME}_test PRIVATE rstorage runit)
+    if (MSVC OR MSYS OR MINGW OR APPLE OR UNIX)
+        target_compile_definitions(${PROJECT_NAME}_test PUBLIC -DRSTORAGE_USING_FD)
+        target_compile_definitions(${PROJECT_NAME} PUBLIC -DRSTORAGE_USING_FD)
+    endif ()
 
-
-if (MSVC OR MSYS OR MINGW OR APPLE OR UNIX)
-    target_compile_definitions(${PROJECT_NAME}_test PUBLIC -DRSTORAGE_USING_FD)
-    target_compile_definitions(${PROJECT_NAME} PUBLIC -DRSTORAGE_USING_FD)
+    enable_testing()
+    add_test(NAME ${PROJECT_NAME}_test COMMAND ${PROJECT_NAME}_test)
 endif ()
 
 
-set(FILES_FOR_FORMATTING tests/tests.c ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2})
+set(FILES_FOR_FORMATTING test/tests.c ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2})
 
 # clang-format
 find_program(clang_format NAMES clang-format)

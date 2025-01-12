@@ -1,10 +1,4 @@
-#ifndef __RSTORAGE_H_
-#define __RSTORAGE_H_
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
+#pragma once
 #include "stdbool.h"
 #include "stdio.h"
 #include "stdint.h"
@@ -48,8 +42,6 @@ bool rstorage_write(rstorage* instance, void* data, uint32_t bytes);
  */
 bool rstorage_read(rstorage* instance, void* data, uint32_t bytes);
 
-#ifdef __cplusplus
-}
-#endif
 
-#endif
+
+

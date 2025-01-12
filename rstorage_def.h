@@ -1,5 +1,4 @@
-#ifndef __RSTORAGE_DEF_H__
-#define __RSTORAGE_DEF_H__
+#pragma once
 
 #include "stdint.h"
 
@@ -22,4 +21,4 @@ typedef enum
 #endif
 
 
-#endif
+

@@ -58,6 +58,7 @@ void test_public_api_invalid_read_arg(void)
     runit_true(rstorage_write(&storage5, storage_data, sizeof(storage_data)));
     runit_true(rstorage_read(&storage5, (void*) storage_data, sizeof(storage_data)));
 
+
     runit_false(rstorage_read(&storage5, (void*) storage_data, 0));  // Invalid
 
     runit_true(rstorage_init(&storage6, 1));
