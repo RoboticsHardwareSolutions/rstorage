@@ -5,10 +5,7 @@
 extern "C" {
 #endif
 
-#include "stdbool.h"
-#include "stdio.h"
-#include "stdint.h"
-#include "rstorage_def.h"
+#include "storage.h"
 
 typedef struct storage_element rstorage;
 
