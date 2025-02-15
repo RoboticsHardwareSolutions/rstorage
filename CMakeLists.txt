@@ -10,35 +10,39 @@ file(GLOB RST_HEADERS2 *.h)
 add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_SOURCE2})
 
 target_include_directories(${PROJECT_NAME}
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/storage>
-        )
+    PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/storage>
+)
 
 
-add_executable(${PROJECT_NAME}_test tests/tests.c
+if(NOT ${CMAKE_SYSTEM_NAME} MATCHES Generic)
+    add_executable(${PROJECT_NAME}_test tests/tests.c
         ${RST_SOURCE1}
         ${RST_SOURCE2}
         ./tests/runit/src/runit.c)
 
-target_include_directories(${PROJECT_NAME}_test PUBLIC tests/runit/src storage .)
+    target_include_directories(${PROJECT_NAME}_test PUBLIC tests/runit/src storage .)
 
+    if(MSVC OR MSYS OR MINGW OR APPLE OR UNIX)
+        target_compile_definitions(${PROJECT_NAME}_test PUBLIC -DRSTORAGE_USING_FD)
+    endif()
+endif()
 
-if (MSVC OR MSYS OR MINGW OR APPLE OR UNIX)
-    target_compile_definitions(${PROJECT_NAME}_test PUBLIC -DRSTORAGE_USING_FD)
+if(MSVC OR MSYS OR MINGW OR APPLE OR UNIX)
     target_compile_definitions(${PROJECT_NAME} PUBLIC -DRSTORAGE_USING_FD)
-endif ()
+endif()
 
 
 set(FILES_FOR_FORMATTING tests/tests.c ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2})
 
 # clang-format
 find_program(clang_format NAMES clang-format)
-if (NOT clang_format)
+if(NOT clang_format)
     message(STATUS "Could not locate clang-format")
-else ()
+else()
     file(GLOB format_files ${FILES_FOR_FORMATTING})
     add_custom_target(rstorage_format COMMAND ${clang_format} -i -fallback-style=none -style=file --verbose ${format_files})
-endif ()
+endif()
 
 
