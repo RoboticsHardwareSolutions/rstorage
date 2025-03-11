@@ -41,7 +41,3 @@ bool rstorage_write(rstorage* instance, void* data, uint32_t bytes);
  * @return
  */
 bool rstorage_read(rstorage* instance, void* data, uint32_t bytes);
-
-
-
-
