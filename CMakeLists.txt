@@ -11,7 +11,7 @@ file(GLOB RST_SOURCE2 *.c)
 file(GLOB RST_HEADERS2 *.h)
 
 
-add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_SOURCE2})
+add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2} )
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
@@ -22,7 +22,6 @@ target_include_directories(${PROJECT_NAME}
 #################### TEST SECTION #######################
 if (NOT ${CMAKE_SYSTEM_NAME} MATCHES Generic)
     add_executable(${PROJECT_NAME}_test test/tests.c)
-
     if (NOT TARGET runit)
         include(FetchContent)
         FetchContent_Declare(

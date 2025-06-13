@@ -73,14 +73,14 @@ bool storage_write(struct storage_element* instance, void* data, uint32_t bytes)
         return false;
     }
 
-    instance->state         = storage_idle;
+    instance->state = storage_idle;
     return true;
 }
 
 bool storage_read(struct storage_element* instance, void* data, uint32_t bytes)
 {
-    if (instance->state != storage_idle || instance->size == 0 ||
-        bytes > (uint32_t) instance->size * 1024 || bytes == 0)
+    if (instance->state != storage_idle || instance->size == 0 || bytes > (uint32_t) instance->size * 1024 ||
+        bytes == 0)
         return false;
 
     instance->state = storage_reading;

@@ -15,7 +15,7 @@ typedef enum
 } rstorage_state;
 
 #if defined(RSTORAGE_USING_FD)
-#    include "storage_fd.h"
+#    include "storage_api.h"
 #elif defined(STM32G474xx) || defined(STM32F103xB)
 #    include "storage_mcu.h"
 #endif
