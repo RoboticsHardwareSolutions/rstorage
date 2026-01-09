@@ -11,7 +11,7 @@ file(GLOB RST_SOURCE2 *.c)
 file(GLOB RST_HEADERS2 *.h)
 
 
-add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2} )
+add_library(${PROJECT_NAME} STATIC ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2})
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
@@ -52,8 +52,14 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(rlibhelper)
 set(FILES_FOR_FORMATTING test/tests.c ${RST_SOURCE1} ${RST_HEADERS1} ${RST_SOURCE2} ${RST_HEADERS2})
-include(${CMAKE_BINARY_DIR}/_deps/rlibhelper-src/format.cmake)
+if (EXISTS "${rlibhelper_SOURCE_DIR}/format.cmake")
+    include(${rlibhelper_SOURCE_DIR}/format.cmake)
+else ()
+    message(WARNING "format.cmake file not found")
+endif ()
 format_files(${PROJECT_NAME} SOURCES ${FILES_FOR_FORMATTING})
+
+
 
 
 
