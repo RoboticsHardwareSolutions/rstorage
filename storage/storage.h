@@ -17,7 +17,7 @@ typedef enum
     storage_error,
 } storage_state_t;
 
-#if defined(STM32F765xx) || defined(STM32G474xx) || defined(STM32F103xB)
+#if defined(STM32F765xx) || defined(STM32G474xx) || defined(STM32F103xB) || defined(STM32F103xE)
 
 struct storage_element
 {

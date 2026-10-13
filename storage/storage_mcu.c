@@ -1,4 +1,4 @@
-#if defined(STM32F765xx) || defined(STM32G474xx) || defined(STM32F103xB)
+#if defined(STM32F765xx) || defined(STM32G474xx) || defined(STM32F103xB) || defined(STM32F103xE)
 
 #    include "storage.h"
 #    include "main.h"
@@ -32,7 +32,7 @@ static uint32_t get_bank(uint32_t addr)
         return FLASH_BANK_2;
 }
 
-#    elif defined(STM32F103xB)
+#    elif defined(STM32F103xB) || defined(STM32F103xE)
 
 #        define DATA_PORTION_SIZE sizeof(uint32_t)
 
